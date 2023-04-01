@@ -11,10 +11,10 @@ ui <- fluidPage(
       
       selectInput("var", 
                   label = "Choose a variable to display",
-                  choices = list("Percent White", 
-                                 "Percent Black",
-                                 "Percent Hispanic", 
-                                 "Percent Asian"),
+                  choices = c("Percent White", 
+                              "Percent Black",
+                              "Percent Hispanic", 
+                              "Percent Asian"),
                   selected = "Percent White"),
       
       sliderInput("range", 
@@ -22,12 +22,23 @@ ui <- fluidPage(
                   min = 0, max = 100, value = c(0, 100))
     ),
     
-    mainPanel()
+    mainPanel(
+      textOutput("selected_var"),
+      textOutput("min_max")
+    )
   )
 )
-
 # Define server logic ----
 server <- function(input, output) {
+  
+  output$selected_var <- renderText({ 
+    paste("You have selected", input$var)
+  })
+  
+  output$min_max <- renderText({
+    paste("You have chosen a range that goes from", 
+          input$range[1], "to", input$range[2])
+  })
   
 }
 
