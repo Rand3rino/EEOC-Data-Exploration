@@ -1,59 +1,30 @@
 library(shiny)
 
-# Define UI for app that draws a histogram ----
+# Define UI ----
 ui <- fluidPage(
-  
-  # App title ----
-  titlePanel("Hello World!"),
-  
-  # Sidebar layout with input and output definitions ----
+  titlePanel("My Shiny App"),
   sidebarLayout(
-    
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-      
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 5,
-                  max = 50,
-                  value = 30)
-      
-    ),
-    
-    # Main panel for displaying outputs ----
+    sidebarPanel(),
     mainPanel(
-      
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
-      
+      p("p creates a paragraph of text."),
+      p("A new p() command starts a new paragraph. Supply a style attribute to change the format of the entire paragraph.", style = "font-family: 'times'; font-si16pt"),
+      strong("strong() makes bold text."),
+      em("em() creates italicized (i.e, emphasized) text."),
+      br(),
+      code("code displays your text similar to computer code"),
+      div("div creates segments of text with a similar style. This division of text is all blue because I passed the argument 'style = color:blue' to div", style = "color:blue"),
+      br(),
+      p("span does the same thing as div, but it works with",
+        span("groups of words", style = "color:blue"),
+        "that appear inside a paragraph.")
     )
   )
 )
 
-# Define server logic required to draw a histogram ----
+# Define server logic ----
 server <- function(input, output) {
-  
-  # Histogram of the Old Faithful Geyser Data ----
-  # with requested number of bins
-  # This expression that generates a histogram is wrapped in a call
-  # to renderPlot to indicate that:
-  #
-  # 1. It is "reactive" and therefore should be automatically
-  #    re-executed when inputs (input$bins) change
-  # 2. Its output type is a plot
-  output$distPlot <- renderPlot({
-    
-    x    <- faithful$waiting
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    hist(x, breaks = bins, col = "#75AADB", border = "orange",
-         xlab = "Waiting time to next eruption (in mins)",
-         main = "Histogram of waiting times")
-    
-  })
   
 }
 
-# Create Shiny app ----
+# Run the app ----
 shinyApp(ui = ui, server = server)
