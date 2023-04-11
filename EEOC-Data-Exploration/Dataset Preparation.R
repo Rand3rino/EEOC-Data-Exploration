@@ -20,9 +20,13 @@ filter_national <- function(df) {
   # Get variable name as a string
   # https://stackoverflow.com/questions/44281656/get-object-name-in-r-as-string
   year <- substr(deparse(match.call()$df), 6, 9)
+  
+  # Capitalize Column Names
+  colnames(df) <- toupper(colnames(df))
+  
   df %>% 
-    filter(is.na(Region) & !is.na(NAICS2_Name) & is.na(CBSA) & !is.na(NAICS3_Name)) %>% 
-    select(-Nation, -Region, -Division, -State, -CBSA, -County, -NAICS2, -NAICS3) %>% 
+    filter(is.na(REGION) & !is.na(NAICS2_NAME) & is.na(CBSA) & !is.na(NAICS3_NAME)) %>% 
+    select(-NATION, -REGION, -DIVISION, -STATE, -CBSA, -COUNTY, -NAICS2, -NAICS3) %>% 
     mutate(Year = year)
 }
 
@@ -57,3 +61,53 @@ eeoc_national %>%
   dplyr::summarise(n()) %>% 
   dplyr::arrange(Year)
 
+
+### Rename Column Names
+column_names <- colnames(eeoc_national)
+column_names[1] <- "Industry Group"
+column_names[2] <- "Industry"
+column_names[3] <- "Establishments"
+
+# Job types
+column_names <- str_replace(column_names, "1_2", "/Middle Management")
+column_names <- str_replace(column_names, "10", "/All Jobs")
+column_names <- str_replace(column_names, "9", "/Service")
+column_names <- str_replace(column_names, "8", "/Labor")
+column_names <- str_replace(column_names, "7", "/Operatives")
+column_names <- str_replace(column_names, "6", "/Craft")
+column_names <- str_replace(column_names, "5", "/Clericals")
+column_names <- str_replace(column_names, "4", "/Sales Workers")
+column_names <- str_replace(column_names, "3", "/Techinicians")
+column_names <- str_replace(column_names, "2", "/Professionals")
+column_names <- str_replace(column_names, "1", "/Senior Management")
+
+# Sexes
+column_names <- str_replace(column_names, "M/", "/Male/")
+column_names <- str_replace(column_names, "F/", "/Female/")
+column_names <- str_replace(column_names, "MT/", "All Races/Male/")
+column_names <- str_replace(column_names, "FT/", "All Races/Female/")
+column_names <- str_replace(column_names, "T/", "/All Sexes/")
+
+# Races
+column_names <- str_replace(column_names, "AIAN/", "American Indian or Alaskan Native/")
+column_names <- str_replace(column_names, "WH/", "White/")
+column_names <- str_replace(column_names, "BLK/", "Black/")
+column_names <- str_replace(column_names, "ASIAN/", "Asian/")
+column_names <- str_replace(column_names, "NHOPI/", "Native Hawaiian or Pacific Islander/")
+column_names <- str_replace(column_names, "TOMR/", "Two or More Races/")
+column_names <- str_replace(column_names, "HISP/", "Hispanic/")
+
+# Totals
+column_names <- str_replace(column_names, "TOTAL/", "All Races/All Sexes/")
+
+# Apply new column names
+colnames(eeoc_national) <- column_names
+
+### Pivot Data and split race/sex/profession column
+eeoc_pivot <- eeoc_national %>% 
+  pivot_longer(col = -c(Year,`Industry Group`,Industry,Establishments)) %>% 
+  separate(name, c("Race", "Sex", "Profession"), "/")
+
+# Replace * values with 0
+eeoc_pivot$value <- str_replace(eeoc_pivot$value, "\\*", "")
+eeoc_pivot$value <- as.integer(eeoc_pivot$value)
