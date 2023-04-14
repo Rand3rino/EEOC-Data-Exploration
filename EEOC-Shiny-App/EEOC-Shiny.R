@@ -1,14 +1,15 @@
 library(shiny)
+library(dplyr)
 
-eeoc <- read_csv("https://github.com/Rand3rino/EEOC-Data-Exploration/blob/master/EEOC.csv?raw=true")
+eeoc <- read_csv("https://github.com/Rand3rino/EEOC-Data-Exploration/blob/master/EEOC.csv?raw=true") 
+eeoc <- eeoc %>% filter(!is.na(Workers))
 
 # Define UI ----
 ui <- fluidPage(
   titlePanel("EEOC Data Exploration"),
   sidebarLayout(
     sidebarPanel(
-      helpText("Select your desired model function, 
-                   target variable, and explanatory variables."),
+      helpText("Select the data filters that you would like to apply to the model. You can also choose the model type you'd like to use."),
       sliderInput("years", 
                   label = "Years",
                   min = min(eeoc$Year), max = max(eeoc$Year), 
@@ -34,13 +35,21 @@ ui <- fluidPage(
                   choices = c(unique(eeoc$Profession)),
                   selected = "All Jobs")
       ),
-    mainPanel()
+    mainPanel(tableOutput("table"))
   )
 )
 
 
 # Define server logic ----
 server <- function(input, output) {
+  
+    output$table <-renderTable(
+      data <- eeoc %>% 
+                 filter(Sex == input$varSex & Race == input$varRace) %>% 
+                 #input$varSex) %>% 
+                 group_by(Year) %>% 
+                 dplyr::summarise(Worker = sum(Workers))
+      )
 }
 
 # Run the app ----
