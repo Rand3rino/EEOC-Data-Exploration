@@ -37,7 +37,8 @@ ui <- fluidPage(
       ),
     mainPanel(
       tableOutput("table"),
-      verbatimTextOutput("lm_model_summary")
+      verbatimTextOutput("lm_model_summary"),
+      verbatimTextOutput("log_model_summary")
       )
   )
 )
@@ -68,6 +69,20 @@ server <- function(input, output) {
         dplyr::summarise(Workers = as.integer(sum(Workers)))
       
       model <- lm(Workers ~ Year, data = eeoc_transformed)
+      
+      summary(model)
+    })
+    
+    output$log_model_summary <- renderPrint({
+      eeoc_transformed <- eeoc %>%
+        filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+        filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+        # filter_if(input$varIndGroup != "All Industry Groups", `Industry Group` == input$varIndGroup) %>%
+        # filter_if(input$varInd == "All Industries", Industry == input$varInd) %>%
+        group_by(Year) %>%
+        dplyr::summarise(Workers = as.integer(sum(Workers)))
+      
+      model <- glm(Workers ~ Year, data = eeoc_transformed, family = "poisson")
       
       summary(model)
     })
