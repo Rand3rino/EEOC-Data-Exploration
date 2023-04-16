@@ -10,7 +10,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       helpText("Select the data filters that you would like to apply to the model. You can also choose the model type you'd like to use."),
-      sliderInput("years", 
+      sliderInput("varYears", 
                   label = "Years",
                   min = min(eeoc$Year), max = max(eeoc$Year), 
                   value = c(min(eeoc$Year),max(eeoc$Year))),
@@ -35,7 +35,10 @@ ui <- fluidPage(
                   choices = c(unique(eeoc$Profession)),
                   selected = "All Jobs")
       ),
-    mainPanel(tableOutput("table"))
+    mainPanel(
+      tableOutput("table"),
+      verbatimTextOutput("lm_model_summary")
+      )
   )
 )
 
@@ -43,13 +46,31 @@ ui <- fluidPage(
 # Define server logic ----
 server <- function(input, output) {
   
-    output$table <-renderTable(
-      data <- eeoc %>% 
-                 filter(Sex == input$varSex & Race == input$varRace) %>% 
-                 #input$varSex) %>% 
-                 group_by(Year) %>% 
-                 dplyr::summarise(Worker = sum(Workers))
-      )
+
+  
+    output$table <-renderTable({
+      eeoc_transformed <- eeoc %>%
+        filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+        filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+        # filter_if(input$varIndGroup != "All Industry Groups", `Industry Group` == input$varIndGroup) %>%
+        # filter_if(input$varInd == "All Industries", Industry == input$varInd) %>%
+        group_by(Year) %>%
+        dplyr::summarise(Workers = as.integer(sum(Workers)))
+      })
+
+    output$lm_model_summary <- renderPrint({
+      eeoc_transformed <- eeoc %>%
+        filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+        filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+        # filter_if(input$varIndGroup != "All Industry Groups", `Industry Group` == input$varIndGroup) %>%
+        # filter_if(input$varInd == "All Industries", Industry == input$varInd) %>%
+        group_by(Year) %>%
+        dplyr::summarise(Workers = as.integer(sum(Workers)))
+      
+      model <- lm(Workers ~ Year, data = eeoc_transformed)
+      
+      summary(model)
+    })
 }
 
 # Run the app ----
