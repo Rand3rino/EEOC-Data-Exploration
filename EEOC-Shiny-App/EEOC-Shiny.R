@@ -46,17 +46,32 @@ ui <- fluidPage(
 
 # Define server logic ----
 server <- function(input, output) {
-  
+     
 
   
     output$table <-renderTable({
-      eeoc_transformed <- eeoc %>%
-        filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
-        filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-        # filter_if(input$varIndGroup != "All Industry Groups", `Industry Group` == input$varIndGroup) %>%
-        # filter_if(input$varInd == "All Industries", Industry == input$varInd) %>%
-        group_by(Year) %>%
-        dplyr::summarise(Workers = as.integer(sum(Workers)))
+      if (input$varInd == "All Industries" & input$varIndGroup == "All Industry Groups") {
+        eeoc_transformed <- eeoc %>%
+          filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+          filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+          group_by(Year) %>%
+          dplyr::summarise(Workers = as.integer(sum(Workers)))
+      } else if (input$varInd == "All Industries") {
+        eeoc_transformed <- eeoc %>%
+          filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+          filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+          filter(`Industry Group` == input$varIndGroup) %>% 
+          group_by(Year) %>%
+          dplyr::summarise(Workers = as.integer(sum(Workers)))
+      } else {
+        eeoc_transformed <- eeoc %>%
+          filter(Sex == input$varSex & Race == input$varRace & Profession == input$varProfession ) %>%
+          filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
+          filter(`Industry Group` == input$varIndGroup & Industry == input$varInd) %>% 
+          group_by(Year) %>%
+          dplyr::summarise(Workers = as.integer(sum(Workers)))
+      }
+
       })
 
     output$lm_model_summary <- renderPrint({
