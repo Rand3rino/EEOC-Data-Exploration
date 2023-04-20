@@ -265,56 +265,56 @@ server <- function(input, output) {
         eeoc_transformed1 <- eeoc %>%
           filter(Sex == input$varSex1 & Race == input$varRace1 & Profession == input$varProfession1 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          mutate(Year = as.integer(Year)) %>% 
+          mutate(Year = as.integer(Year)) %>%
           group_by(Year) %>%
           dplyr::summarise(Target = as.integer(sum(Workers)))
       } else if (input$varInd1 == "All Industries") {
         eeoc_transformed1 <- eeoc %>%
           filter(Sex == input$varSex1 & Race == input$varRace1 & Profession == input$varProfession1 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          mutate(Year = as.integer(Year)) %>% 
-          filter(`Industry Group` == input$varIndGroup1) %>% 
+          mutate(Year = as.integer(Year)) %>%
+          filter(`Industry Group` == input$varIndGroup1) %>%
           group_by(Year) %>%
           dplyr::summarise(Target = as.integer(sum(Workers)))
       } else {
         eeoc_transformed1 <- eeoc %>%
           filter(Sex == input$varSex1 & Race == input$varRace1 & Profession == input$varProfession1 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          filter(`Industry Group` == input$varIndGroup1 & Industry == input$varInd1) %>% 
-          mutate(Year = as.integer(Year)) %>% 
+          filter(`Industry Group` == input$varIndGroup1 & Industry == input$varInd1) %>%
+          mutate(Year = as.integer(Year)) %>%
           group_by(Year) %>%
           dplyr::summarise(Target = as.integer(sum(Workers)))
       }
-      
+
       if (input$varInd2 == "All Industries" & input$varIndGroup2 == "All Industry Groups") {
         eeoc_transformed2 <- eeoc %>%
           filter(Sex == input$varSex2 & Race == input$varRace2 & Profession == input$varProfession2 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          mutate(Year = as.integer(Year)) %>% 
+          mutate(Year = as.integer(Year)) %>%
           group_by(Year) %>%
           dplyr::summarise(Explanatory = as.integer(sum(Workers)))
       } else if (input$varInd2 == "All Industries") {
         eeoc_transformed2 <- eeoc %>%
           filter(Sex == input$varSex2 & Race == input$varRace2 & Profession == input$varProfession2 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          filter(`Industry Group` == input$varIndGroup2) %>% 
-          mutate(Year = as.integer(Year)) %>% 
+          filter(`Industry Group` == input$varIndGroup2) %>%
+          mutate(Year = as.integer(Year)) %>%
           group_by(Year) %>%
           dplyr::summarise(Explanatory = as.integer(sum(Workers)))
       } else {
         eeoc_transformed2 <- eeoc %>%
           filter(Sex == input$varSex2 & Race == input$varRace2 & Profession == input$varProfession2 ) %>%
           filter(Year >= min(input$varYears) & Year <= max(input$varYears)) %>%
-          filter(`Industry Group` == input$varIndGroup2 & Industry == input$varInd2) %>% 
-          mutate(Year = as.integer(Year)) %>% 
+          filter(`Industry Group` == input$varIndGroup2 & Industry == input$varInd2) %>%
+          mutate(Year = as.integer(Year)) %>%
           group_by(Year) %>%
           dplyr::summarise(Explanatory = as.integer(sum(Workers)))
       }
-      
+
       eeoc_combined <- full_join(eeoc_transformed1, eeoc_transformed2, by = "Year")
-      
+
       model <- lm(Target ~ Explanatory, data = eeoc_combined)
-      
+
       summary(model)
     })
     
