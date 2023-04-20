@@ -1,5 +1,6 @@
 library(shiny)
 library(dplyr)
+library(tidyverse)
 
 # Formatting Scientific Notation
 # https://rpubs.com/techanswers88/remove-scientific-notation-in-ggplot
