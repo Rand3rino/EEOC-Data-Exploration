@@ -255,9 +255,9 @@ server <- function(input, output) {
       # https://stackoverflow.com/questions/57051942/extracting-the-coefficients-from-the-model-summary-to-make-a-equation
       
       paste("Using a linear model, the target population of ", input$varSex1, ", ", input$varRace1, " working as ", input$varProfession1, " in ", input$varIndGroup1, "(", input$varInd1, ")",
-            " is ", 100 * round(summary(model)$coef[2,1], 2), "% of the explantory population of ", 
+            " is ", 100 * round(summary(model)$coef[2,1], 2), "% of the explanatory population of ", 
             input$varSex2, ", ", input$varRace2, " working as ", input$varProfession2, " in ", input$varIndGroup2, "(", input$varInd2, ")",
-            " and an additional ", round(summary(model)$coef[1,1], 0), " people.", sep = "" )
+            " and an additional ", round(summary(model)$coef[1,1], 0), " people. Another way to put this is that for every 100 people matching the explanatory population you've selected, there are ", 100 * round(summary(model)$coef[2,1], 2), " people matching the target population criteria, with a minimum of ",  round(summary(model)$coef[1,1], 0), " people in the target population.", sep = "" )
       
     })
     
